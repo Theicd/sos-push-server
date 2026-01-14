@@ -1,0 +1,17 @@
+{
+  "name": "sos-push-server",
+  "version": "2.0.0",
+  "description": "SOS Push Notification Server with Vercel KV",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'No build step required'",
+    "start": "vercel dev"
+  },
+  "dependencies": {
+    "web-push": "^3.6.7",
+    "@vercel/kv": "^2.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

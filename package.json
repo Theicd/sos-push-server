@@ -1,11 +1,9 @@
 {
   "name": "sos-push-server",
   "version": "2.0.0",
-  "description": "SOS Push Notification Server with Vercel KV",
+  "description": "SOS Push Notification Server with Upstash Redis",
   "scripts": {
-    "dev": "vercel dev",
-    "build": "echo 'No build step required'",
-    "start": "vercel dev"
+    "dev": "vercel dev"
   },
   "dependencies": {
     "web-push": "^3.6.7",

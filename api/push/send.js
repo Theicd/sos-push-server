@@ -21,8 +21,9 @@ function getRedis() {
 }
 
 // הגדרת VAPID (lazy initialization)
-const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY || 'BK_EV-pOGBdyr1z5Nzz7tib8IKkRCm0F97yaklkjiPGUxowhU86ZQgOOWsAJY9yGB0cmaNU6QdYFNEs6AK_7A8Y';
-const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || 'zji1vkdl4YaQQx155uP-89vc8H2-83lUlO7vWLSb6LU';
+// מפתחות VAPID חדשים - נוצרו 15/01/2026 | HYPER CORE TECH
+const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY || 'BBQdBPxKCkBA4WbsV7jDoB77KyhxmgNu8q3p8Mqh762flijrzv7lNYdTlCwNIAOOb_jhCe8pMwBFe-fR25RWVFE';
+const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || 'EOKjjuNHvzJ995fD0LYQiHstrUfNaaI1Frg3qCQ-_R0';
 const VAPID_EMAIL = process.env.VAPID_EMAIL || 'mailto:admin@sos.app';
 
 let vapidConfigured = false;

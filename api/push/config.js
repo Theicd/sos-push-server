@@ -20,7 +20,8 @@ module.exports = function handler(req, res) {
   }
 
   // VAPID keys
-  const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY || 'BK_EV-pOGBdyr1z5Nzz7tib8IKkRCm0F97yaklkjiPGUxowhU86ZQgOOWsAJY9yGB0cmaNU6QdYFNEs6AK_7A8Y';
+  // מפתח VAPID חדש - נוצר 15/01/2026 | HYPER CORE TECH
+  const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY || 'BBQdBPxKCkBA4WbsV7jDoB77KyhxmgNu8q3p8Mqh762flijrzv7lNYdTlCwNIAOOb_jhCe8pMwBFe-fR25RWVFE';
 
   console.log(`[CONFIG][${requestId}] VAPID_PUBLIC_KEY מוגדר: ${VAPID_PUBLIC_KEY ? 'כן' : 'לא'}`);
   console.log(`[CONFIG][${requestId}] אורך מפתח: ${VAPID_PUBLIC_KEY?.length || 0}`);

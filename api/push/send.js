@@ -1,7 +1,13 @@
 // SOS Push Server - Send API | HYPER CORE TECH
-// שליחת Push notifications עם Vercel KV
+// שליחת Push notifications עם Upstash Redis
 
-import { kv } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
+
+// יצירת חיבור ל-Redis
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN,
+});
 import webpush from 'web-push';
 
 // הגדרת VAPID
@@ -39,14 +45,14 @@ export default async function handler(req, res) {
     }
 
     // מקבלים את רשימת המנויים של המשתמש
-    const userSubsJson = await kv.get(`user:${pubkey}`);
+    const userSubsJson = await redis.get(`user:${pubkey}`);
     
     if (!userSubsJson) {
       console.log(`[SEND] No subscriptions found for user ${pubkey.slice(0, 8)}`);
       return res.status(200).json({ ok: true, sent: 0, message: 'No subscriptions found for user' });
     }
 
-    const subscriptionIds = JSON.parse(userSubsJson);
+    const subscriptionIds = typeof userSubsJson === 'string' ? JSON.parse(userSubsJson) : userSubsJson;
     console.log(`[SEND] Found ${subscriptionIds.length} subscriptions for user ${pubkey.slice(0, 8)}`);
 
     let sent = 0;
@@ -56,13 +62,13 @@ export default async function handler(req, res) {
     // שליחת Push לכל המנויים
     for (const subId of subscriptionIds) {
       try {
-        const subDataJson = await kv.get(`sub:${subId}`);
+        const subDataJson = await redis.get(`sub:${subId}`);
         if (!subDataJson) {
           expiredSubs.push(subId);
           continue;
         }
 
-        const subData = JSON.parse(subDataJson);
+        const subData = typeof subDataJson === 'string' ? JSON.parse(subDataJson) : subDataJson;
         const subscription = subData.subscription;
 
         await webpush.sendNotification(
@@ -91,11 +97,11 @@ export default async function handler(req, res) {
     // ניקוי מנויים שפגו תוקף
     if (expiredSubs.length > 0) {
       const remainingSubs = subscriptionIds.filter(id => !expiredSubs.includes(id));
-      await kv.set(`user:${pubkey}`, JSON.stringify(remainingSubs));
+      await redis.set(`user:${pubkey}`, JSON.stringify(remainingSubs));
       
       // מחיקת המנויים עצמם
       for (const expiredId of expiredSubs) {
-        await kv.del(`sub:${expiredId}`);
+        await redis.del(`sub:${expiredId}`);
       }
       console.log(`[SEND] Cleaned up ${expiredSubs.length} expired subscriptions`);
     }

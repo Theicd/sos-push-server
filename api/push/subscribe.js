@@ -1,7 +1,13 @@
 // SOS Push Server - Subscribe API | HYPER CORE TECH
-// רישום מנוי Push עם שמירה ב-Vercel KV
+// רישום מנוי Push עם שמירה ב-Upstash Redis
 
-import { kv } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
+
+// יצירת חיבור ל-Redis
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN,
+});
 
 export default async function handler(req, res) {
   // CORS headers
@@ -27,7 +33,7 @@ export default async function handler(req, res) {
     // יצירת מזהה ייחודי מה-endpoint
     const subscriptionId = subscription.endpoint.split('/').pop();
 
-    // שמירת המנוי ב-KV
+    // שמירת המנוי ב-Redis
     const subscriptionData = {
       subscription,
       pubkey: pubkey || null,
@@ -36,18 +42,18 @@ export default async function handler(req, res) {
     };
 
     // שמירה לפי ID
-    await kv.set(`sub:${subscriptionId}`, JSON.stringify(subscriptionData));
+    await redis.set(`sub:${subscriptionId}`, JSON.stringify(subscriptionData));
 
     // אם יש pubkey - שומרים גם אינדקס לפי pubkey
     if (pubkey) {
       // מקבלים את רשימת המנויים הקיימים של המשתמש
-      const existingSubs = await kv.get(`user:${pubkey}`) || '[]';
-      const subsArray = JSON.parse(existingSubs);
+      const existingSubs = await redis.get(`user:${pubkey}`) || '[]';
+      const subsArray = typeof existingSubs === 'string' ? JSON.parse(existingSubs) : existingSubs;
       
       // מוסיפים את המנוי החדש אם לא קיים
       if (!subsArray.includes(subscriptionId)) {
         subsArray.push(subscriptionId);
-        await kv.set(`user:${pubkey}`, JSON.stringify(subsArray));
+        await redis.set(`user:${pubkey}`, JSON.stringify(subsArray));
       }
     }
 
@@ -74,8 +80,8 @@ export default async function handler(req, res) {
 async function getStats() {
   try {
     // ספירת משתמשים ומכשירים
-    const keys = await kv.keys('user:*');
-    const subKeys = await kv.keys('sub:*');
+    const keys = await redis.keys('user:*');
+    const subKeys = await redis.keys('sub:*');
     return {
       users: keys.length,
       devices: subKeys.length
